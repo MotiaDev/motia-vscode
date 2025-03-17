@@ -1,0 +1,30 @@
+{
+  "name": "motia-vscode",
+  "displayName": "Motia Workbench",
+  "description": "VS Code extension for Motia workflow development",
+  "version": "0.1.0",
+  "publisher": "motiadev",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "motia.openWorkbench",
+        "title": "Motia: Open Workbench"
+      },
+      {
+        "command": "motia.startServer",
+        "title": "Motia: Start Development Server"
+      },
+      {
+        "command": "motia.stopServer",
+        "title": "Motia: Stop Development Server"
+      }
+    ]
+  }
+}

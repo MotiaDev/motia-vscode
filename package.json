@@ -1,0 +1,81 @@
+{
+  "name": "motia-vscode",
+  "displayName": "Motia Workbench",
+  "description": "VS Code extension for Motia workflow development",
+  "version": "0.1.8",
+  "publisher": "motiadev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/motiadev/motia-vscode"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/steps/**"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "motia.openWorkbench",
+        "title": "Motia: Open Workbench"
+      },
+      {
+        "command": "motia.startServer",
+        "title": "Motia: Start Development Server"
+      },
+      {
+        "command": "motia.stopServer",
+        "title": "Motia: Stop Development Server"
+      }
+    ],
+    "configuration": {
+      "title": "Motia",
+      "properties": {
+        "motia.serverPort": {
+          "type": "number",
+          "default": 3000,
+          "description": "Port for the Motia development server"
+        },
+        "motia.autoStartServer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Automatically start the Motia server when a project is detected"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack --config webpack.simple.js",
+    "watch": "webpack --config webpack.simple.js --watch",
+    "package": "webpack --config webpack.simple.js --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "vscode:package": "npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.80.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "@vscode/test-electron": "^2.3.0",
+    "@vscode/vsce": "^3.3.0",
+    "eslint": "^8.39.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "ts-loader": "^9.4.2",
+    "typescript": "^5.0.4",
+    "webpack": "^5.81.0",
+    "webpack-cli": "^5.0.2"
+  }
+}
