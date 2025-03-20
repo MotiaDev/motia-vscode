@@ -60,7 +60,10 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "vscode:package": "npx @vscode/vsce package"
+    "vscode:package": "npx @vscode/vsce package",
+    "publish": "npx @vscode/vsce publish",
+    "publish:minor": "npm version minor && npx @vscode/vsce publish",
+    "publish:patch": "npm version patch && npx @vscode/vsce publish"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
