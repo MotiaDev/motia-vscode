@@ -55,9 +55,7 @@ This extension contributes the following settings:
 
 ## Release Notes
 
-### 0.1.0
-
-Initial release of the Motia Workbench extension
+For a detailed list of changes, see the [CHANGELOG](./CHANGELOG.md).
 
 ## Development
 
@@ -67,6 +65,34 @@ Initial release of the Motia Workbench extension
 2. Run `npm install`
 3. Run `npm run compile` to build the extension
 4. Press F5 to launch the extension in a new VS Code window
+
+### Publishing the Extension
+
+#### Manual Publishing
+
+1. Update the version in `package.json` (follow [semver](https://semver.org/))
+2. Run `npm run publish` to package and publish the extension
+3. Alternatively, use convenience scripts:
+   - `npm run publish:patch` - Bump patch version and publish
+   - `npm run publish:minor` - Bump minor version and publish
+
+#### Automated Publishing
+
+The extension can be published automatically using GitHub Actions:
+
+1. Go to the GitHub repository Actions tab
+2. Select the "Publish Extension" workflow
+3. Click "Run workflow"
+4. Select the version bump type (patch, minor, or major)
+5. Click "Run workflow"
+
+This will:
+- Bump the version according to your selection
+- Build and package the extension
+- Publish to VS Code Marketplace
+- Create a GitHub release with the new version
+
+**Note:** This requires a VS Code Marketplace Personal Access Token (PAT) stored as a GitHub secret named `VSCE_PAT`.
 
 ## License
 

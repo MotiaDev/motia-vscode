@@ -3,20 +3,59 @@ name: Publish Extension
 on:
   release:
     types: [created]
+  workflow_dispatch:
+    inputs:
+      version-bump:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: 'choice'
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: 'npm'
+      
       - run: npm ci
-      - name: Publish to VS Code Marketplace
+      
+      - name: Setup Git Identity
         run: |
-          npm run package
-          npx vsce publish -p ${{ secrets.VSCE_PAT }}
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+      
+      - name: Version Bump (Manual Trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          npm version ${{ github.event.inputs.version-bump }} -m "Bump version to %s [skip ci]"
+          git push --follow-tags
+          echo "NEW_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_ENV
+      
+      - name: Build Extension
+        run: npm run package
+      
+      - name: Publish to VS Code Marketplace
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+      
+      - name: Create GitHub Release (Manual Trigger)
+        if: github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v1
+        with:
+          name: v${{ env.NEW_VERSION }}
+          tag_name: v${{ env.NEW_VERSION }}
+          generate_release_notes: true
+          files: |
+            *.vsix
