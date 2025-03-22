@@ -46,11 +46,11 @@ export class ServerManager {
       // Try different package managers in order of preference
       this._terminal.sendText(`
 if command -v npx &> /dev/null; then
-  npx motia dev --port ${this._serverPort}
+  npx motia dev --verbose --port ${this._serverPort}
 elif command -v pnpm &> /dev/null; then
-  pnpm run dev -- --port ${this._serverPort}
+  pnpm run dev --verbose --port ${this._serverPort}
 elif command -v yarn &> /dev/null; then
-  yarn dev --port ${this._serverPort}
+  yarn dev --verbose --port ${this._serverPort}
 else
   echo "Could not find a package manager to run the Motia server"
   echo "Please install npx with: npm install -g npx"
@@ -94,7 +94,7 @@ fi
             setTimeout(() => {
               const { WorkbenchPanel } = require('../workbenchPanel')
               WorkbenchPanel.createOrShow(extensionUri)
-            }, 100)
+            }, 500)
           }
           
           if (resolve) resolve(true)
