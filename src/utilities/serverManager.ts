@@ -155,21 +155,33 @@ fi
    */
   public static checkIfServerRunning(port: number): Promise<boolean> {
     return new Promise((resolve) => {
-      const socket = new net.Socket()
-
-      const onError = () => {
-        socket.destroy()
-        resolve(false)
+      const http = require('http')
+      const options = {
+        hostname: '127.0.0.1',
+        port: port,
+        path: '/',
+        method: 'GET',
+        timeout: 1000
       }
 
-      socket.setTimeout(1000)
-      socket.once('error', onError)
-      socket.once('timeout', onError)
-
-      socket.connect(port, '127.0.0.1', () => {
-        socket.end()
-        resolve(true)
+      const req = http.request(options, (res: any) => {
+        if (res.statusCode === 200) {
+          resolve(true)
+        } else {
+          resolve(false)
+        }
       })
+
+      req.on('error', () => {
+        resolve(false)
+      })
+
+      req.on('timeout', () => {
+        req.destroy()
+        resolve(false)
+      })
+
+      req.end()
     })
   }
 

@@ -2,7 +2,7 @@
   "name": "motia-vscode",
   "displayName": "Motia Workbench",
   "description": "VS Code extension for Motia workflow development",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "motiadev",
   "repository": {
     "type": "git",
