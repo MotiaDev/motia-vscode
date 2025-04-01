@@ -1,5 +1,6 @@
+import { exec } from 'child_process'
+import { promisify } from 'util'
 import * as vscode from 'vscode'
-import * as net from 'net'
 
 /**
  * Manages the Motia development server
@@ -10,6 +11,22 @@ export class ServerManager {
   private static _serverPort = 3000
   private static _serverStartTime = 0
   private static _maxStartupTime = 30000 // 30 seconds max wait time
+  private static _execAsync = promisify(exec)
+
+  /**
+   * Check if a command exists in the system
+   * @param command The command to check
+   * @returns Promise<boolean> True if command exists
+   */
+  private static async commandExists(command: string): Promise<boolean> {
+    try {
+      const cmd = process.platform === 'win32' ? 'where' : 'which'
+      await this._execAsync(`${cmd} ${command}`)
+      return true
+    } catch {
+      return false
+    }
+  }
 
   /**
    * Starts the Motia development server
@@ -43,20 +60,23 @@ export class ServerManager {
 
       // Create a new terminal
       this._terminal = vscode.window.createTerminal('Motia Dev Server')
-      // Try different package managers in order of preference
-      this._terminal.sendText(`
-if command -v npx &> /dev/null; then
-  npx motia dev --verbose --port ${this._serverPort}
-elif command -v pnpm &> /dev/null; then
-  pnpm run dev --verbose --port ${this._serverPort}
-elif command -v yarn &> /dev/null; then
-  yarn dev --verbose --port ${this._serverPort}
-else
-  echo "Could not find a package manager to run the Motia server"
-  echo "Please install npx with: npm install -g npx"
-  exit 1
-fi
-      `)
+      
+      // Determine which package manager to use
+      let command = ''
+      if (await this.commandExists('npx')) {
+        command = `npx motia dev --verbose --port ${this._serverPort}`
+      } else if (await this.commandExists('pnpm')) {
+        command = `pnpm run dev --verbose --port ${this._serverPort}`
+      } else if (await this.commandExists('yarn')) {
+        command = `yarn dev --verbose --port ${this._serverPort}`
+      } else {
+        const message = 'Could not find a package manager to run the Motia server. Please install npx with: npm install -g npx'
+        vscode.window.showErrorMessage(message)
+        reject(new Error(message))
+        return
+      }
+
+      this._terminal.sendText(command)
       this._terminal.show()
       
       // Record server start time
