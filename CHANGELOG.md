@@ -2,6 +2,12 @@
 
 All notable changes to the "Motia Workbench" extension will be documented in this file.
 
+## [0.2.3] - 2024-03-21
+
+### Changed
+- Added support for multiple package managers (npx, pnpm, yarn)
+- Added support for detecting and executing system commands using `which` (Unix) or `where` (Windows)
+
 ## [0.2.2] - 2024-03-21
 
 ### Changed
