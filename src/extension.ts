@@ -92,6 +92,12 @@ export async function activate(context: vscode.ExtensionContext) {
               });
             }
             
+            // Always add the validate Node.js path option
+            menuItems.push({
+              label: '$(tools) Validate Node.js Path',
+              command: 'motia.validateNodejsPath'
+            });
+            
             // Show the menu
             const selection = await vscode.window.showQuickPick(menuItems, {
               placeHolder: isRunning ? 'Motia Service (Running)' : 'Motia Service (Stopped)'
@@ -144,6 +150,16 @@ export async function activate(context: vscode.ExtensionContext) {
             // Check actual server status
             const isRunning = await ServerManager.isServerRunning()
             updateStatusBarItem(isRunning)
+          }
+        }),
+      )
+
+      context.subscriptions.push(
+        vscode.commands.registerCommand('motia.validateNodejsPath', async () => {
+          try {
+            await ServerManager.validateNodejsPath()
+          } catch (error) {
+            vscode.window.showErrorMessage(`Error validating Node.js path: ${error.message}`)
           }
         }),
       )

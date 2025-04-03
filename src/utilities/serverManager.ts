@@ -1,6 +1,10 @@
 import { exec } from 'child_process'
 import { promisify } from 'util'
 import * as vscode from 'vscode'
+import * as path from 'path'
+import * as fs from 'fs'
+import * as http from 'http'
+import { WorkbenchPanel } from '../workbenchPanel'
 
 /**
  * Manages the Motia development server
@@ -38,6 +42,17 @@ export class ServerManager {
       // Get the server port from settings
       const config = vscode.workspace.getConfiguration('motia')
       this._serverPort = config.get<number>('serverPort', 3000)
+      // Get custom Node.js path if set
+      const nodejsPath = config.get<string>('nodejsPath', '')
+      
+      // Validate Node.js path if one is specified
+      if (nodejsPath) {
+        const isValid = await this.validateNodejsPath()
+        if (!isValid) {
+          reject(new Error('Invalid Node.js path specified'))
+          return
+        }
+      }
 
       // Check if server is already running
       const isRunning = await this.checkIfServerRunning(this._serverPort)
@@ -49,7 +64,6 @@ export class ServerManager {
         if (extensionUri) {
           // Use a timeout to avoid circular dependency issues
           setTimeout(() => {
-            const { WorkbenchPanel } = require('../workbenchPanel')
             WorkbenchPanel.createOrShow(extensionUri)
           }, 100)
         }
@@ -62,13 +76,16 @@ export class ServerManager {
       this._terminal = vscode.window.createTerminal('Motia Dev Server')
       
       // Determine which package manager to use
-      let command = ''
-      if (await this.commandExists('npx')) {
-        command = `npx motia dev --verbose --port ${this._serverPort}`
+      let command = `motia dev --verbose --port ${this._serverPort}`
+      if(nodejsPath) {
+        const isWin = process.platform === 'win32';
+        command = `${isWin ? '& ' : ''}"${path.join(nodejsPath, isWin ? 'npx.cmd' : 'npx')}" ${command}`
+      } else if (await this.commandExists('npx')) {
+        command = `npx ${command}`
       } else if (await this.commandExists('pnpm')) {
-        command = `pnpm run dev --verbose --port ${this._serverPort}`
+        command = `pnpm ${command}`
       } else if (await this.commandExists('yarn')) {
-        command = `yarn dev --verbose --port ${this._serverPort}`
+        command = `yarn ${command}`
       } else {
         const message = 'Could not find a package manager to run the Motia server. Please install npx with: npm install -g npx'
         vscode.window.showErrorMessage(message)
@@ -112,7 +129,6 @@ export class ServerManager {
           if (extensionUri) {
             // Use a timeout to avoid circular dependency issues
             setTimeout(() => {
-              const { WorkbenchPanel } = require('../workbenchPanel')
               WorkbenchPanel.createOrShow(extensionUri)
             }, 500)
           }
@@ -175,7 +191,6 @@ export class ServerManager {
    */
   public static checkIfServerRunning(port: number): Promise<boolean> {
     return new Promise((resolve) => {
-      const http = require('http')
       const options = {
         hostname: '127.0.0.1',
         port: port,
@@ -219,5 +234,45 @@ export class ServerManager {
    */
   public static getServerStatus(): boolean {
     return this._isRunning
+  }
+
+  /**
+   * Validates the specified Node.js path by checking if it exists and can execute
+   * @returns Promise<boolean> True if the path is valid
+   */
+  public static async validateNodejsPath(): Promise<boolean> {
+    try {
+      const config = vscode.workspace.getConfiguration('motia')
+      const nodejsPath = config.get<string>('nodejsPath', '')
+      
+      if (!nodejsPath) {
+        vscode.window.showInformationMessage('Using system Node.js (no custom path specified)')
+        return true // No custom path specified, so it's valid
+      }
+      
+      // Check if the file exists
+      if (!fs.existsSync(nodejsPath)) {
+        vscode.window.showErrorMessage(`Node.js executable not found at: ${nodejsPath}`)
+        return false
+      }
+      
+      // Try to run node --version to verify it's a working executable
+      try {
+        const result = await this._execAsync(`"${path.join(nodejsPath, 'node')}" --version`)
+        if (result.stdout && result.stdout.trim().startsWith('v')) {
+          vscode.window.showInformationMessage(`Node.js validated: ${result.stdout.trim()}`)
+          return true
+        } else {
+          vscode.window.showErrorMessage(`Invalid Node.js executable: does not return a valid version`)
+          return false
+        }
+      } catch (error) {
+        vscode.window.showErrorMessage(`Error running Node.js: ${error.message}`)
+        return false
+      }
+    } catch (error) {
+      vscode.window.showErrorMessage(`Error validating Node.js path: ${error.message}`)
+      return false
+    }
   }
 }

@@ -48,6 +48,22 @@ This extension contributes the following settings:
 
 - `motia.serverPort`: Port for the Motia development server (default: 3000)
 - `motia.autoStartServer`: Automatically start the server when a Motia project is detected (default: false)
+- `motia.nodejsPath`: Custom path to Node.js installation directory (leave empty to use system default)
+
+### Setting a Custom Node.js Path
+
+If you need to use a specific Node.js installation or have multiple versions installed:
+
+1. Go to Settings (File > Preferences > Settings)
+2. Search for "Motia Node.js Path"
+3. Enter the full path to your Node.js installation directory:
+   - Windows: `C:\Program Files\nodejs` or similar
+   - macOS: `/usr/local/bin` or similar 
+   - Linux: `/usr/bin` or similar
+4. Use the "Motia: Validate Node.js Path" command to verify the path
+   - This checks that the required Node.js executables exist
+   - Confirms the Node.js version is compatible
+   - Tests that npx commands can be executed successfully
 
 ## Known Issues
 
