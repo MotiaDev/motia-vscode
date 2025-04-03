@@ -25,7 +25,7 @@ A VS Code extension that integrates the Motia Workbench directly into your edito
 
 ### Manual Installation
 
-1. Download the `.vsix` file from the [releases page](https://github.com/your-username/motia-vscode/releases)
+1. Download the `.vsix` file from the [releases page](https://github.com/motiadev/motia-vscode/releases)
 2. In VS Code, go to Extensions (Ctrl+Shift+X)
 3. Click the "..." menu and select "Install from VSIX..."
 4. Select the downloaded file

@@ -2,6 +2,11 @@
 
 All notable changes to the "Motia Workbench" extension will be documented in this file.
 
+## [0.2.4] - 2024-04-02
+
+### Changed
+- Updated documentation links in README.md for better navigation and clarity
+
 ## [0.2.3] - 2024-03-21
 
 ### Changed
