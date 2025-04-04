@@ -2,7 +2,7 @@
   "name": "motia-vscode",
   "displayName": "Motia Workbench",
   "description": "VS Code extension for Motia workflow development",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "publisher": "motiadev",
   "repository": {
     "type": "git",
@@ -32,6 +32,10 @@
       {
         "command": "motia.stopServer",
         "title": "Motia: Stop Development Server"
+      },
+      {
+        "command": "motia.validateNodejsPath",
+        "title": "Motia: Validate Node.js Path"
       }
     ],
     "configuration": {
@@ -46,6 +50,11 @@
           "type": "boolean",
           "default": false,
           "description": "Automatically start the Motia server when a project is detected"
+        },
+        "motia.nodejsPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path to Node.js installation directory (leave empty to use system default)."
         }
       }
     }

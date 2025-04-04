@@ -2,6 +2,12 @@
 
 All notable changes to the "Motia Workbench" extension will be documented in this file.
 
+## [0.2.5] - 2024-04-03
+
+### Added
+- Added support for custom Node.js path configuration
+- New command to validate Node.js path
+
 ## [0.2.4] - 2024-04-02
 
 ### Changed
