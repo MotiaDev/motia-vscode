@@ -2,6 +2,12 @@
 
 All notable changes to the "Motia Workbench" extension will be documented in this file.
 
+## [0.2.6] - 2024-05-15
+
+### Added
+- Added automatic dependency installation for projects without node_modules
+- Enhanced Node.js path handling with improved environment variable setup
+
 ## [0.2.5] - 2024-04-03
 
 ### Added

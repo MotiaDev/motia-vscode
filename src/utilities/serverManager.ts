@@ -33,6 +33,33 @@ export class ServerManager {
   }
 
   /**
+   * Checks if the workspace has a node_modules directory and the motia CLI
+   * @returns Promise<boolean> True if node_modules and motia CLI exist
+   */
+  private static async hasNodeModules(): Promise<boolean> {
+    try {
+      const workspaceFolders = vscode.workspace.workspaceFolders
+      if (!workspaceFolders || workspaceFolders.length === 0) {
+        return false
+      }
+      
+      const rootPath = workspaceFolders[0].uri.fsPath
+      const nodeModulesPath = path.join(rootPath, 'node_modules')
+      
+      if (!fs.existsSync(nodeModulesPath)) {
+        return false
+      }
+      
+      // Check for motia CLI in node_modules/.bin
+      const motiaBinPath = path.join(nodeModulesPath, '.bin', process.platform === 'win32' ? 'motia.cmd' : 'motia')
+      return fs.existsSync(motiaBinPath)
+    } catch (error) {
+      console.error('Error checking for node_modules and motia CLI:', error)
+      return false
+    }
+  }
+
+  /**
    * Starts the Motia development server
    * @param extensionUri Optional extension URI for opening the workbench
    * @returns Promise that resolves when server is confirmed running or rejects on timeout
@@ -72,14 +99,28 @@ export class ServerManager {
         return
       }
 
-      // Create a new terminal
-      this._terminal = vscode.window.createTerminal('Motia Dev Server')
+      // Create a new terminal with custom env if nodejsPath is specified
+      let terminalOptions: vscode.TerminalOptions = {
+        name: 'Motia Dev Server'
+      };
       
-      // Determine which package manager to use
+      if (nodejsPath) {
+        // Add the nodejsPath to the terminal's PATH
+        const pathSeparator = process.platform === 'win32' ? ';' : ':';
+        const env = { ...process.env };
+        env.PATH = nodejsPath + pathSeparator + (env.PATH || '');
+        terminalOptions.env = env;
+      }
+      
+      this._terminal = vscode.window.createTerminal(terminalOptions);
+      
       let command = `motia dev --verbose --port ${this._serverPort}`
+      const installCmd = 'npm install'
+      // Check if node_modules exists in the project
+      const hasLocalNodeModules = await this.hasNodeModules()
+      
       if(nodejsPath) {
-        const isWin = process.platform === 'win32';
-        command = `${isWin ? '& ' : ''}"${path.join(nodejsPath, isWin ? 'npx.cmd' : 'npx')}" ${command}`
+        command = `npx ${command}`
       } else if (await this.commandExists('npx')) {
         command = `npx ${command}`
       } else if (await this.commandExists('pnpm')) {
@@ -93,6 +134,9 @@ export class ServerManager {
         return
       }
 
+      if(!hasLocalNodeModules) {
+        this._terminal.sendText(installCmd)
+      }
       this._terminal.sendText(command)
       this._terminal.show()
       

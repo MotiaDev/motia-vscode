@@ -14,5 +14,24 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install
-      - run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build VSIX
+        run: npx @vscode/vsce package
+
+      - name: Get version from package.json
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *.vsix
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Marketplace
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
